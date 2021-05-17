@@ -229,6 +229,8 @@ struct S_FactoryData
 #define WSPR_FREQ630m             47570000ULL   //630m      475.700kHz
 #define WSPR_FREQ2190m            13750000ULL   //2190m     137.500kHz
 
+// 1536Hz or +36Hz in Centihertz
+#define WSPR_FIXED_OFFSET  (100ULL * 36)
 
 #define FactorySpace true
 #define UserSpace    false
@@ -511,6 +513,8 @@ void setup()
   Serial.print(SoftwareVersion);
   Serial.print(("."));
   Serial.println(SoftwareRevision);
+
+  Serial.println(F("{MIN} Modified by JJ1BDX"));
 
   //Blink StatusLED to indicate Reboot
   LEDBlink(16);
@@ -1198,7 +1202,9 @@ void DoWSPR ()
     {
       CurrentBand = 0;
       NextFreq(); //Cycle to next enabled band to transmitt on
-      freq = freq + (100ULL * random (-100, 100)); //modify TX frequency with a random value beween -100 and +100 Hz
+      // Use fixed offset
+      freq = freq + WSPR_FIXED_OFFSET;
+      // freq = freq + (100ULL * random (-100, 100)); //modify TX frequency with a random value beween -100 and +100 Hz
       si5351aOutputOff(SI_CLK0_CONTROL);
       SendAPIUpdate (UMesCurrentMode);
 
@@ -1271,7 +1277,9 @@ void DoWSPR ()
                 }
                 GPSWakeUp();
                 NextFreq();// get the frequency for the next HAM band that we will transmit on
-                freq = freq + (100ULL * random (-100, 100)); //modify the TX frequency with a random value beween -100 and +100 Hz to avoid possible lengthy colisions with other users on the band
+                // Use fixed offset
+                freq = freq + WSPR_FIXED_OFFSET;
+                // freq = freq + (100ULL * random (-100, 100)); //modify the TX frequency with a random value beween -100 and +100 Hz to avoid possible lengthy colisions with other users on the band
                 smartdelay(3000);
               }
             }
